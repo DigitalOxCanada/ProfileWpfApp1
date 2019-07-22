@@ -1,0 +1,53 @@
+﻿Macro Name:
+TESTFROMWPF
+
+Macro:
+MsgBox "Hello from Wpf inside Profile"
+
+
+
+Macro Name:
+WPFTEST
+
+Macro:
+// IntraHealth assembly - CSharp
+// #reference=System.Windows.Forms.dll
+// #reference=WindowsBase.dll
+// #reference=PresentationCore.dll
+// #reference=PresentationFramework.dll
+// #reference=System.Xaml.dll
+// #reference=ProfileWpfApp1.dll
+
+using Intrahealth.Common.IHProfBL.Interop;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Windows.Forms;
+using System.Windows.Threading;
+
+namespace ProfileWpfApp1 
+{
+	class Program
+	{
+		static void Main(ISProfile profile, ISPatient pat, ISConstants consts)
+		{
+			//Load our test patient that has filenum 42.
+			var p = profile.LoadPatientByFilenum("42");
+
+			//instantiate our WPF MainWindow passing the constructor the profile handle.
+			MainWindow app = new MainWindow(profile);
+
+			//wire up the closed even to force proper shutdown of app.
+			app.Closed += (s, e) => app.Dispatcher.InvokeShutdown();
+
+			//examples of calling properties/methods inside our WPF app.
+			app.SetPatient(p);
+			app.MainVM.Items.Add("Initial Item added in Profile");
+
+			//show the MainWindow window
+			bool? r = app.ShowDialog();
+
+			//show the user we are back to Profile and the WPF exit code.
+			MessageBox.Show("Welcome back.  Exit code: " + r.Value.ToString());
+		}
+	}
+}
